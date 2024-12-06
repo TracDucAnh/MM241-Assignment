@@ -25,16 +25,17 @@ class Policy2310068(Policy):
     self.stock_sheets = [item[2] for item in self.stock_info_list]
 
 
-  def CanCut(self, stockSheet, pos, prod):
-    return self._can_place_(stockSheet, pos, prod["size"])
+  def CanCut(self, stockSheet, pos, prod_size):
+    return self._can_place_(stockSheet, pos, prod_size)
   
-  def CutProduct(self, product, stockSheet):
+  def CutProduct(self, product_size, stockSheet):
     stock_width, stock_height = self._get_stock_size_(stockSheet)
-    product_width, product_height = product["size"]
+    product_width, product_height = product_size
     # if product is not cuttable in this current stock, move to the next stock
     if (product_width < 0 or product_width > stock_width or product_height < 0 or product_height > stock_height):
       pass
     else:
+      product_size = product_size
       #Initialize the first cutting posititon, (-1, -1) means the product hasn't been cut
       cut_position = (-1, -1)
       # Iterate through every possible place that can cut the product
@@ -44,13 +45,14 @@ class Policy2310068(Policy):
           if (stockSheet[x][y] != -1):
             continue
           else:
-            if (self.CanCut(stockSheet, (x, y), product)):
+            if (self.CanCut(stockSheet, (x, y), product_size)):
               cut_position = (x, y)
+              product_size = product_size
               break
         # If finded cuttable posittion, out the loop
         if (cut_position[0] != -1 and cut_position[1] != -1):
           break
-    return cut_position
+    return cut_position, product_size
 
 
   def get_action(self, observation, info):
@@ -65,8 +67,11 @@ class Policy2310068(Policy):
     for i in range (0, len(self.stock_sheets)):
       for product in self.sorted_list_prods:
         if product["quantity"] > 0:
-          product_size = product["size"]
-          cut_position = self.CutProduct(product, self.stock_sheets[i])
+          cut_position, product_size = self.CutProduct(product["size"], self.stock_sheets[i])
+          
+          if (cut_position[0] == -1 or cut_position[1] == -1):
+            cut_position, product_size = self.CutProduct(product["size"][::-1], self.stock_sheets[i])
+          
           if cut_position[0] != -1 and cut_position[1] != -1:
             stock_idx = self.stock_idx[i]
             break
