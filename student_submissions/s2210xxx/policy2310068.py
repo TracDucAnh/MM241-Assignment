@@ -3,16 +3,17 @@ import numpy as np
 
 class Policy2310068(Policy):
   def __init__(self):
-    # Student code here
     self.stock_info_list = []
     self.stock_idx = []
     self.stock_sheets = []
     self.sorted_list_prods = []
     self.first_action = False
   
+  # Function to sort products
   def SortProducts(self, products):
     return sorted(products, key=lambda x:-x["size"][0]*x["size"][1])
-
+  
+  # Function to sort stocksheets
   def SortStockSheet(self, stocks):
     self.stock_info_list = []
     self.stock_idx = []
@@ -23,11 +24,12 @@ class Policy2310068(Policy):
     self.stock_info_list = sorted(self.stock_info_list, key=lambda x: x[0], reverse=True)
     self.stock_idx = [item[1] for item in self.stock_info_list]
     self.stock_sheets = [item[2] for item in self.stock_info_list]
-
-
+  
+  #Function to determine if we could cut the product on a position on a stocksheet
   def CanCut(self, stockSheet, pos, prod_size):
     return self._can_place_(stockSheet, pos, prod_size)
   
+  #Function to cut, rotate
   def CutProduct(self, product_size, stockSheet):
     stock_width, stock_height = self._get_stock_size_(stockSheet)
     product_width, product_height = product_size
@@ -54,7 +56,6 @@ class Policy2310068(Policy):
           break
     return cut_position, product_size
 
-
   def get_action(self, observation, info):
     # Student code here
     if (self.first_action == False or info["filled_ratio"] == 0.00):
@@ -69,6 +70,7 @@ class Policy2310068(Policy):
         if product["quantity"] > 0:
           cut_position, product_size = self.CutProduct(product["size"], self.stock_sheets[i])
           
+          # Rotate to find if rotated product could fit the remain area
           if (cut_position[0] == -1 or cut_position[1] == -1):
             cut_position, product_size = self.CutProduct(product["size"][::-1], self.stock_sheets[i])
           
@@ -82,21 +84,3 @@ class Policy2310068(Policy):
       else:
         continue
     return {"stock_idx": stock_idx, "size": product_size, "position": cut_position}
-
-    # # Loop thourgh products list and try to cut the largest product for each stock
-    # for product in self.sorted_list_prods:
-    #   # Only accept product which has quantity greater than 0
-    #   if product["quantity"] > 0:
-    #     product_size = product["size"]
-    #      # Loop through every stock, trying to fit the largest product as possible
-    #     for i in range(0, len(self.stock_sheets)):
-    #       cut_position = self.CutProduct(product, self.stock_sheets[i])
-    #       if (cut_position[0] != -1 and cut_position[1] != -1):
-    #         stock_idx = self.stock_idx[i]
-    #         break
-    #     if (cut_position[0] != -1 and cut_position[1] != -1):
-    #       break
-    # return {"stock_idx": stock_idx, "size": product_size, "position": cut_position}
-
-    # Student code here
-    # You can add more functions if needed

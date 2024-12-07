@@ -8,7 +8,7 @@ env = gym.make(
     "gym_cutting_stock/CuttingStock-v0",
     render_mode="human",  # Comment this line to disable rendering
 )
-NUM_EPISODES = 400
+NUM_EPISODES = 500
 
 if __name__ == "__main__":
     # # Reset the environment
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     ep = 0
     sum = 0
     trim = 0
-    file = open("ep_400.txt", mode = "w")
+    file = open("ep_500.txt", mode = "w")
     while (ep < NUM_EPISODES):
         action = policy2210xxx.get_action(observation, info)
         # print(action)
